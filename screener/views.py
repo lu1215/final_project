@@ -81,6 +81,8 @@ def screener_cal_result_gene(request):
                 selected_miRNA = [selected_miRNA[1], selected_miRNA[0]]
             set_operation = "DIFFERENCE"
         ## query mysql and get data
+        #############################################################################
+        ## 依據差集、交集或聯集的方式將miRNA的資料輸出，後續df處理方式依據大家寫的調整
         df_miRNA = pd.DataFrame(miRNAscreener_getdata(selected_miRNA, set_operation))
         df_miRNA.dropna(subset = ['gene_name'], inplace=True)
         if set_operation=="INTERSECT":
@@ -89,6 +91,7 @@ def screener_cal_result_gene(request):
         elif set_operation=="DIFFERENCE":
             df_miRNA[selected_miRNA[0]] = "o"
             df_miRNA[selected_miRNA[1]] = "x"
+        #############################################################################
         df = df_miRNA if len(df) == 0 else pd.merge(df, df_miRNA, left_on="name", right_on="gene_name", how="inner")
     if switch_dict["DE"]:
         DE_level = request.POST["type"]
