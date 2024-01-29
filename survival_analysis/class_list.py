@@ -65,7 +65,7 @@ class Survival_plot():
 			print(columns_info)
 			# Extract column names from the result
 			data_columns = [column[1] for column in columns_info]
-			print(data_columns)
+# 			print(data_columns)
 			for i in data_columns:
 				if i != 'normal' and i !='all_stage' and i != 'pvalue(normal_allstage)' and i != 'pvalue(allstage_normal)':
 					column.append('`'+i+'`')
@@ -74,7 +74,6 @@ class Survival_plot():
 		cursor.execute("SELECT %s FROM `%s` WHERE `%s` = '%s'"%(column,table_name,primary_key,GT_input))
 		print("SELECT %s FROM `%s` WHERE `%s` = '%s'"%(column,table_name,primary_key,GT_input))
 		result = list(cursor.fetchall()[0])
-		print(result)
 		return result
 		
 	def survival_plot(T1,E1,T2,E2,GT_input,primary_site,random_id,Low_Percentile,High_Percentile,survival_days,survival_select):
@@ -511,7 +510,14 @@ class Filter():
 
 		print(sql)
 		cursor.execute(sql)
-		table_data = list(map(list,cursor.fetchall()))
+		table_column = [col[0] for col in cursor.description]
+		table_column[0] = "gene_name"
+		table_column[3] = table_column[5]
+		table_column.pop()
+		# print("table_column", table_column)
+		tmp_data = cursor.fetchall()
+		table_data = list(map(list,tmp_data))
+
 		end = time.time()
 		download_table_data = []
 		start = time.time()
@@ -546,7 +552,7 @@ class Filter():
 						download_table_data.append([row[0],round(row[2],3),round(row[1],3),round(round(row[2],3)/round(row[1],3),3)])
 						
 			else:
-				path = '/home/edward/Django/edward_project/static/error_isoforms.txt'
+				path = f'{current_path}/../static/data/error_isoforms.txt'
 				f = open(path, 'r')
 				error_isoforms = eval(f.read())
 				f.close()
@@ -585,27 +591,33 @@ class Filter():
 			else:
 				table_data = sorted(table_data,key=operator.itemgetter(3, 2), reverse=True)
 			end = time.time()
-		
-		return table_data,download_table_data
+		return table_data, download_table_data, table_column
 
-	def download_table(diff_data,select_filter_value):
-
-		primary_site = select_filter_value[1].split('|')[0]
-		project = select_filter_value[1].split('|')[1]
-		condition1 = select_filter_value[2].split('|')[0]
-		condition2 = select_filter_value[3].split('|')[0]
-		DE_level = select_filter_value[0]
-		FC_select = select_filter_value[4].split(' (')[0].strip()
-		FC_input = select_filter_value[5].strip()
-		TEST_select = select_filter_value[6]
-		TESTstates_select = select_filter_value[7].split(' (')[0].strip()
-		TEST_input = select_filter_value[8].strip()
-
+	def download_table(diff_data,DE_filter, primary_site, project, DE_level):
+		# primary_site = select_filter_value[1].split('|')[0]
+		# project = select_filter_value[1].split('|')[1]
+		# condition1 = select_filter_value[2].split('|')[0]
+		# condition2 = select_filter_value[3].split('|')[0]
+		# DE_level = select_filter_value[0]
+		# FC_select = select_filter_value[4].split(' (')[0].strip()
+		# FC_input = select_filter_value[5].strip()
+		# TEST_select = select_filter_value[6]
+		# TESTstates_select = select_filter_value[7].split(' (')[0].strip()
+		# TEST_input = select_filter_value[8].strip()
+		condition1 = DE_filter[0].split('|')[0]
+		condition2 = DE_filter[1].split('|')[0]
+		condition1_count = DE_filter[0].split('|')[2]
+		condition2_count = DE_filter[1].split('|')[2]
+		FC_select = DE_filter[2].strip()
+		FC_input = DE_filter[3].strip()
+		TEST_select = DE_filter[4]
+		TESTstates_select = DE_filter[5].split(' (')[0].strip()
+		TEST_input = DE_filter[6].strip()
 		output_data = [
 						['%s Differential Expression %s'%(len(diff_data),DE_level.title())],
 						['Primary site',primary_site],
-						['Condition1',condition2],
-						['Condition2',condition1],
+						['Condition1',condition1],
+						['Condition2',condition2],
 						['Differential Expression level',"DE %s"%DE_level],
 						]
 		if FC_input != '' and TEST_input == '':

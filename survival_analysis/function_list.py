@@ -34,7 +34,11 @@ def organize_and_cal_pvalue(survival_data: list, Low_Percentile:float, High_Perc
     survival_str = ""
     case_id_list = []
     # print(f"before: {survival_data}")
-    survival_data = survival_data[1:]
+    # survival_data = survival_data[1:]
+    if survival_data[1:] == []:
+        pass
+    else:
+        survival_data = survival_data[1:]
     # print(f"len: {len(survival_data)}")
     FPKM_list = [float(y.split("|")[0]) for x in survival_data for y in x.split(',')]
     low_quartile = np.percentile(FPKM_list, float(Low_Percentile))
@@ -98,7 +102,10 @@ def survival_plot_realtime(project, primary_site, search_by, GT_input,random_id,
     survival_data = Survival_plot.survival_data_realtime(column_table,search_by,GT_input)
     survival_str = ""
     case_id_list = []
-    survival_data = survival_data[1:]
+    if survival_data[1:] == []:
+        pass
+    else:
+        survival_data = survival_data[1:]
     FPKM_list = [float(y.split("|")[0]) for x in survival_data for y in x.split(',')]
     low_quartile = np.percentile(FPKM_list, float(Low_Percentile))
     high_quartile = np.percentile(FPKM_list, 100-float(High_Percentile))

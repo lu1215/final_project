@@ -1,6 +1,6 @@
 from django.shortcuts import render
 import numpy as np
-from survival_analysis.class_list import *
+from survival_analysis.class_list_error import *
 from survival_analysis.function_list import *
 import os
 import random
